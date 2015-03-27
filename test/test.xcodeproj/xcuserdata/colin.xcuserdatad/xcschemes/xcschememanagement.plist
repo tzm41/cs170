@@ -4,30 +4,15 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Makefile.xcscheme</key>
+		<key>test.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
-		<key>cs170.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>4</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>3BB1755A1A9E767F006189EB</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>3BECC5F51A9BD384004087DD</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>3BECC6061A9BD454004087DD</key>
+		<key>3BB175911A9EA42D006189EB</key>
 		<dict>
 			<key>primary</key>
 			<true/>

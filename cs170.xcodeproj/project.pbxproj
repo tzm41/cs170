@@ -7,8 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3BB175A91A9F8096006189EB /* parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BB175A81A9F8096006189EB /* parser.c */; };
 		3BECC5FA1A9BD384004087DD /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BECC5F91A9BD384004087DD /* main.c */; };
+		3BECC6041A9BD39F004087DD /* lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BECC6001A9BD39F004087DD /* lexer.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3BB175791A9E7996006189EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3BB175751A9E7996006189EB /* parser.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3BB1756B1A9E7996006189EB;
+			remoteInfo = parser;
+		};
+		3BB175A11A9EA42E006189EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3BB1759C1A9EA42D006189EB /* test.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3BB175921A9EA42D006189EB;
+			remoteInfo = test;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		3BECC5F41A9BD384004087DD /* CopyFiles */ = {
@@ -23,8 +42,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3BB175751A9E7996006189EB /* parser.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = parser.xcodeproj; path = parser/parser.xcodeproj; sourceTree = "<group>"; };
+		3BB1759C1A9EA42D006189EB /* test.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = test.xcodeproj; path = test/test.xcodeproj; sourceTree = "<group>"; };
+		3BB175A71A9F73D3006189EB /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
+		3BB175A81A9F8096006189EB /* parser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parser.c; sourceTree = "<group>"; };
 		3BECC5F61A9BD384004087DD /* cs170 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cs170; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BECC5F91A9BD384004087DD /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		3BECC6001A9BD39F004087DD /* lexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lexer.c; sourceTree = "<group>"; };
+		3BECC6011A9BD39F004087DD /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
+		3BECC6031A9BD39F004087DD /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,10 +64,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3BB175761A9E7996006189EB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3BB1757A1A9E7996006189EB /* parser */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3BB1759D1A9EA42D006189EB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3BB175A21A9EA42E006189EB /* test */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		3BECC5ED1A9BD384004087DD = {
 			isa = PBXGroup;
 			children = (
-				3BECC5F81A9BD384004087DD /* cs170 */,
+				3BB1759C1A9EA42D006189EB /* test.xcodeproj */,
+				3BB175751A9E7996006189EB /* parser.xcodeproj */,
+				3BECC5F81A9BD384004087DD /* Starter */,
 				3BECC5F71A9BD384004087DD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,15 +98,38 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3BECC5F81A9BD384004087DD /* cs170 */ = {
+		3BECC5F81A9BD384004087DD /* Starter */ = {
 			isa = PBXGroup;
 			children = (
+				3BECC6001A9BD39F004087DD /* lexer.c */,
+				3BECC6011A9BD39F004087DD /* lexer.h */,
+				3BECC6031A9BD39F004087DD /* Makefile */,
 				3BECC5F91A9BD384004087DD /* main.c */,
+				3BB175A71A9F73D3006189EB /* parser.h */,
+				3BB175A81A9F8096006189EB /* parser.c */,
 			);
+			name = Starter;
 			path = cs170;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		3BB1755A1A9E767F006189EB /* Makefile */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 3BB1755B1A9E767F006189EB /* Build configuration list for PBXLegacyTarget "Makefile" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/colin/Documents/Xcode/cs170/cs170;
+			dependencies = (
+			);
+			name = Makefile;
+			passBuildSettingsInEnvironment = 1;
+			productName = Makefile;
+		};
+/* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
 		3BECC5F51A9BD384004087DD /* cs170 */ = {
@@ -91,6 +158,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Colin Tan";
 				TargetAttributes = {
+					3BB1755A1A9E767F006189EB = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					3BECC5F51A9BD384004087DD = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -106,18 +176,48 @@
 			mainGroup = 3BECC5ED1A9BD384004087DD;
 			productRefGroup = 3BECC5F71A9BD384004087DD /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3BB175761A9E7996006189EB /* Products */;
+					ProjectRef = 3BB175751A9E7996006189EB /* parser.xcodeproj */;
+				},
+				{
+					ProductGroup = 3BB1759D1A9EA42D006189EB /* Products */;
+					ProjectRef = 3BB1759C1A9EA42D006189EB /* test.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3BECC5F51A9BD384004087DD /* cs170 */,
+				3BB1755A1A9E767F006189EB /* Makefile */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3BB1757A1A9E7996006189EB /* parser */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = parser;
+			remoteRef = 3BB175791A9E7996006189EB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3BB175A21A9EA42E006189EB /* test */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test;
+			remoteRef = 3BB175A11A9EA42E006189EB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3BECC5F21A9BD384004087DD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BECC6041A9BD39F004087DD /* lexer.c in Sources */,
+				3BB175A91A9F8096006189EB /* parser.c in Sources */,
 				3BECC5FA1A9BD384004087DD /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,6 +225,31 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		3BB1755C1A9E767F006189EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3BB1755D1A9E767F006189EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		3BECC5FB1A9BD384004087DD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -216,6 +341,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3BB1755B1A9E767F006189EB /* Build configuration list for PBXLegacyTarget "Makefile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3BB1755C1A9E767F006189EB /* Debug */,
+				3BB1755D1A9E767F006189EB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3BECC5F11A9BD384004087DD /* Build configuration list for PBXProject "cs170" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -232,6 +366,7 @@
 				3BECC5FF1A9BD384004087DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

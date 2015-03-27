@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-               BuildableName = "cs170"
-               BlueprintName = "cs170"
-               ReferencedContainer = "container:cs170.xcodeproj">
+               BlueprintIdentifier = "3BB175801A9E79DE006189EB"
+               BuildableName = "MakeParser"
+               BlueprintName = "MakeParser"
+               ReferencedContainer = "container:parser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-            BuildableName = "cs170"
-            BlueprintName = "cs170"
-            ReferencedContainer = "container:cs170.xcodeproj">
+            BlueprintIdentifier = "3BB1756A1A9E7996006189EB"
+            BuildableName = "parser"
+            BlueprintName = "parser"
+            ReferencedContainer = "container:parser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -48,13 +48,14 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-            BuildableName = "cs170"
-            BlueprintName = "cs170"
-            ReferencedContainer = "container:cs170.xcodeproj">
+            BlueprintIdentifier = "3BB1756A1A9E7996006189EB"
+            BuildableName = "parser"
+            BlueprintName = "parser"
+            ReferencedContainer = "container:parser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -66,15 +67,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-            BuildableName = "cs170"
-            BlueprintName = "cs170"
-            ReferencedContainer = "container:cs170.xcodeproj">
+            BlueprintIdentifier = "3BB175801A9E79DE006189EB"
+            BuildableName = "MakeParser"
+            BlueprintName = "MakeParser"
+            ReferencedContainer = "container:parser.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-               BuildableName = "cs170"
-               BlueprintName = "cs170"
+               BlueprintIdentifier = "3BB1755A1A9E767F006189EB"
+               BuildableName = "Makefile"
+               BlueprintName = "Makefile"
                ReferencedContainer = "container:cs170.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -48,15 +48,18 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <PathRunnable
+         FilePath = "/Users/colin/Documents/Xcode/cs170/cs170/main">
+      </PathRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-            BuildableName = "cs170"
-            BlueprintName = "cs170"
+            BlueprintIdentifier = "3BB1755A1A9E767F006189EB"
+            BuildableName = "Makefile"
+            BlueprintName = "Makefile"
             ReferencedContainer = "container:cs170.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -66,15 +69,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3BECC5F51A9BD384004087DD"
-            BuildableName = "cs170"
-            BlueprintName = "cs170"
+            BlueprintIdentifier = "3BB1755A1A9E767F006189EB"
+            BuildableName = "Makefile"
+            BlueprintName = "Makefile"
             ReferencedContainer = "container:cs170.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
