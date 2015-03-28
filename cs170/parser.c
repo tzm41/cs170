@@ -241,15 +241,50 @@ List* quote(List* list)
     return list->cellunion.conscell.rest->cellunion.conscell.first;
 }
 
+// helper for the equal? function
+int equals(List* list1, List* list2)
+{
+    if (list1->isCons == 0 && list2->isCons == 0) {
+        // a symbol cell, compare the symbol
+        if(strcmp(list1->cellunion.symbol, list2->cellunion.symbol) == 0)
+            return 1;
+        else
+            return 0;
+    } else if(list1->isCons == 1 && list2->isCons == 1) {
+        // a cons-cell, recursively compare its first and rest
+        // if both pointers are NULL, that branch is equal
+        int x;
+        int y;
+        if (list1->cellunion.conscell.first && list2->cellunion.conscell.first)
+            x = equals(list1->cellunion.conscell.first, list2->cellunion.conscell.first);
+        else if (list1->cellunion.conscell.first == NULL && list2->cellunion.conscell.first == NULL)
+            x = 1;
+        else
+            x = 0;
+        if (list1->cellunion.conscell.rest && list2->cellunion.conscell.rest)
+            y = equals(list1->cellunion.conscell.rest, list2->cellunion.conscell.rest);
+        else if (list1->cellunion.conscell.rest == NULL && list2->cellunion.conscell.rest == NULL)
+            y = 1;
+        else
+            y = 0;
+        // if both branch is equal, comparsion is equal
+        if (x == 1 && y == 1)
+            return 1;
+        else
+            return 0;
+    } else if(list1 == NULL && list2 == NULL)
+        return 1;
+    else
+        return 0;
+}
+
 // implementation of the equal? function
 List* equal(List* list1, List* list2)
 {
-    if (list1->isCons == 0 && list2->isCons == 0) {
-        if(strcmp(list1->cellunion.symbol, list2->cellunion.symbol) == 0)
-            return t();
-        else
-            return f();
-    }
+    if (equals(list1, list2) == 1)
+        return t();
+    else
+        return f();
 }
 
 /****************************************************************
@@ -297,11 +332,14 @@ List* eval(List* list)
             if (strcmp(name, "null?") == 0) {
                 return eval(null(list->cellunion.conscell.rest));
             }
+            if (strcmp(name, "equal?") == 0) {
+                return eval(equal(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first)));
+            }
             if (strcmp(name, "cons") == 0) {
-                return cons(list->cellunion.conscell.rest->cellunion.conscell.first, list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first);
+                return cons(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first));
             }
             if (strcmp(name, "append") == 0) {
-                return append(list->cellunion.conscell.rest->cellunion.conscell.first, list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first);
+                return append(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first));
             }
             if (strcmp(name, "exit") == 0) {
                 printf("Have a nice day!\n");
