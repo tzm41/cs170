@@ -68,11 +68,34 @@ List* s_exprh(int lvl)
         while (strcmp(token, ")") != 0) {
             List* newCell = (List*)malloc(sizeof(List));
             newCell->isCons = 1;
+            
             temp->cellunion.conscell.rest = newCell;
             temp = temp->cellunion.conscell.rest;
             temp->cellunion.conscell.first = s_exprh(lvl + 1);
         }
         temp->cellunion.conscell.rest = NULL;
+    }
+    else if (strcmp(token, "'") == 0) {
+        // in the case of quotation mark
+        // create the corresponding cons-cell structure
+        // as the (quote) command
+        strcpy(token, getToken());
+        
+        // make quote cell
+        List* quote = (List*)malloc(sizeof(List));
+        quote->isCons = 0;
+        quote->cellunion.symbol = (char*)malloc(sizeof(char*));
+        strcpy(quote->cellunion.symbol, "quote");
+        
+        List* next = (List*)malloc(sizeof(List));
+        next->isCons = 1;
+        next->cellunion.conscell.first = s_exprh(lvl + 1);
+        next->cellunion.conscell.rest = NULL;
+        
+        local->isCons = 1;
+        local->cellunion.conscell.first = quote;
+        local->cellunion.conscell.rest = next;
+        return local;
     }
     else {
         if (strcmp(token, "#t") == 0) {
@@ -252,7 +275,7 @@ int equals(List* list1, List* list2)
             return 0;
     } else if(list1->isCons == 1 && list2->isCons == 1) {
         // a cons-cell, recursively compare its first and rest
-        // if both pointers are NULL, that branch is equal
+        // if both pointers are NULL, then that branch is equal
         int x;
         int y;
         if (list1->cellunion.conscell.first && list2->cellunion.conscell.first)
@@ -287,6 +310,12 @@ List* equal(List* list1, List* list2)
         return f();
 }
 
+// implementation of the assoc function
+List* assoc(List* symbol, List* list)
+{
+    return symbol;
+}
+
 /****************************************************************
  Function: eval(List* list)
  --------------------
@@ -314,11 +343,7 @@ List* eval(List* list)
             }
             // switch for each function
             if (strcmp(name, "quote") == 0) {
-                return eval(quote(list));
-            }
-            // have not yet figure out how to deal with quote mark
-            if (strcmp(name, "'") == 0) {
-                return list->cellunion.conscell.rest;
+                return quote(list);
             }
             if (strcmp(name, "car") == 0) {
                 return eval(car(list->cellunion.conscell.rest));
@@ -340,6 +365,9 @@ List* eval(List* list)
             }
             if (strcmp(name, "append") == 0) {
                 return append(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first));
+            }
+            if (strcmp(name, "assoc") == 0) {
+                
             }
             if (strcmp(name, "exit") == 0) {
                 printf("Have a nice day!\n");
