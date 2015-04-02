@@ -194,6 +194,11 @@ List* listcpy(List* list)
     return NULL;
 }
 
+/*
+ * Implementation of all the evaluation methods
+ */
+List* evals(List* list, int lvl);
+
 // implementation of car function
 List* car(List* list)
 {
@@ -251,7 +256,7 @@ List* symbol(List* list)
 // implementation of null? function
 List* null(List* list)
 {
-    List* head = eval(list->cellunion.conscell.first);
+    List* head = evals(list->cellunion.conscell.first, 2);
     if (head->isCons == 1 && head->cellunion.conscell.first == NULL && head->cellunion.conscell.rest == NULL)
         return t();
     else
@@ -311,18 +316,97 @@ List* equal(List* list1, List* list2)
 }
 
 // implementation of the assoc function
+// returns the pair associated with the symbol
+// and #f if the symbol is not the first element of any pair
 List* assoc(List* symbol, List* list)
 {
-    return symbol;
+    List* ptr = list;
+    while (ptr->cellunion.conscell.rest != NULL) {
+        // going to the next pair, checking the first symbol
+        if (strcmp(symbol->cellunion.symbol, ptr->cellunion.conscell.first->cellunion.conscell.first->cellunion.symbol) == 0)
+            return ptr->cellunion.conscell.first;
+        ptr = ptr->cellunion.conscell.rest;
+    }
+    return f();
 }
 
-/****************************************************************
- Function: eval(List* list)
- --------------------
- Evaluate a list from pointer to the start of the list, according
- to the definitions of the functions. Treat "#f" as empty list "()".
- ****************************************************************/
-List* eval(List* list)
+// implementation of the numeric > function
+List* numgt(List* list1, List* list2)
+{
+    if (atoi(list1->cellunion.symbol) > atoi(list2->cellunion.symbol))
+        return t();
+    else
+        return f();
+}
+
+// implementation of the numeric < function
+List* numle(List* list1, List* list2)
+{
+    if (atoi(list1->cellunion.symbol) < atoi(list2->cellunion.symbol))
+        return t();
+    else
+        return f();
+}
+
+// implementation of the numeric = function
+List* numeq(List* list1, List* list2)
+{
+    if (atoi(list1->cellunion.symbol) == atoi(list2->cellunion.symbol))
+        return t();
+    else
+        return f();
+}
+
+// implementation of the numeric + function
+List* numadd(List* list1, List* list2)
+{
+    int add = atoi(list1->cellunion.symbol) + atoi(list2->cellunion.symbol);
+    char a[20];
+    sprintf(a, "%d", add);
+    List* result = (List*)malloc(sizeof(List*));
+    result->isCons = 0;
+    result->cellunion.symbol = a;
+    return result;
+}
+
+// implementation of the numeric - function
+List* numsub(List* list1, List* list2)
+{
+    int add = atoi(list1->cellunion.symbol) - atoi(list2->cellunion.symbol);
+    char a[20];
+    sprintf(a, "%d", add);
+    List* result = (List*)malloc(sizeof(List*));
+    result->isCons = 0;
+    result->cellunion.symbol = a;
+    return result;
+}
+
+// implementation of the cond function
+List* cond(List* list)
+{
+    List* top = list;
+    while (top->cellunion.conscell.rest != NULL) {
+        top = top->cellunion.conscell.rest;
+        // true if condition cons-cell evaluated to be ture
+        // or the keyword is else
+        if (strcmp(evals(top->cellunion.conscell.first->cellunion.conscell.first, 0)->cellunion.symbol, "else") == 0 || strcmp(evals(top->cellunion.conscell.first->cellunion.conscell.first, 0)->cellunion.symbol, "#t") == 0) {
+            return top->cellunion.conscell.first->cellunion.conscell.rest;
+        }
+    }
+    return f();
+}
+
+// implementation of the if function
+List* iff(List* list)
+{
+    if (strcmp(evals(list->cellunion.conscell.first, 0)->cellunion.symbol, "#t") == 0)
+        return evals(list->cellunion.conscell.rest->cellunion.conscell.first, 2);
+    else
+        return evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, 2);
+}
+
+// helper method for eval, keeping track of the level
+List* evals(List* list, int lvl)
 {
     char name[20];
     if (list) {
@@ -337,37 +421,58 @@ List* eval(List* list)
             }
             else {
                 if (list->cellunion.conscell.first)
-                    list = eval(list->cellunion.conscell.first);
+                    list = evals(list->cellunion.conscell.first, lvl + 1);
                 if (list->cellunion.conscell.rest)
-                    list = eval(list->cellunion.conscell.rest);
+                    list = evals(list->cellunion.conscell.rest, lvl + 1);
             }
             // switch for each function
             if (strcmp(name, "quote") == 0) {
                 return quote(list);
             }
             if (strcmp(name, "car") == 0) {
-                return eval(car(list->cellunion.conscell.rest));
+                return evals(car(list->cellunion.conscell.rest), lvl + 1);
             }
             if (strcmp(name, "cdr") == 0) {
-                return eval(cdr(list->cellunion.conscell.rest));
+                return evals(cdr(list->cellunion.conscell.rest), lvl + 1);
             }
             if (strcmp(name, "symbol?") == 0) {
-                return eval(symbol(list->cellunion.conscell.rest));
+                return evals(symbol(list->cellunion.conscell.rest), lvl + 1);
             }
             if (strcmp(name, "null?") == 0) {
-                return eval(null(list->cellunion.conscell.rest));
+                return evals(null(list->cellunion.conscell.rest), lvl + 1);
             }
             if (strcmp(name, "equal?") == 0) {
-                return eval(equal(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first)));
+                return evals(equal(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2)), lvl + 1);
             }
             if (strcmp(name, "cons") == 0) {
-                return cons(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first));
+                return cons(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
             }
             if (strcmp(name, "append") == 0) {
-                return append(eval(list->cellunion.conscell.rest->cellunion.conscell.first), eval(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first));
+                return append(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
             }
             if (strcmp(name, "assoc") == 0) {
-                
+                return assoc(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, ">") == 0) {
+                return numgt(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "<") == 0) {
+                return numle(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "=") == 0) {
+                return numeq(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "+") == 0) {
+                return numadd(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "-") == 0) {
+                return numsub(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "cond") == 0) {
+                return evals(cond(list), lvl + 1);
+            }
+            if (strcmp(name, "if") == 0) {
+                return iff(list->cellunion.conscell.rest);
             }
             if (strcmp(name, "exit") == 0) {
                 printf("Have a nice day!\n");
@@ -377,11 +482,22 @@ List* eval(List* list)
         else {
             // entering from a symbol
             strcpy(name, list->cellunion.symbol);
-            // treat "#f" as an empty list
-            if (strcmp(name, "#f") == 0) {
+            // treat "#f" as an empty list, if the level is not 0 or 1
+            // which is only for aesthetic purpose
+            if (strcmp(name, "#f") == 0 && !(lvl == 0 || lvl == 1)) {
                 list = empty();
             }
         }
     }
     return list;
+}
+
+/****************************************************************
+ Function: eval(List* list)
+ --------------------
+ Evaluate a list from pointer to the start of the list, according
+ to the definitions of the functions. Treat "#f" as empty list "()".
+ ****************************************************************/
+List* eval(List* list) {
+    return evals(list, 0);
 }
