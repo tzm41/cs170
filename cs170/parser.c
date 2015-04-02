@@ -40,13 +40,17 @@ List* t()
 }
 
 // "constant" empty cell
-List* empty() {
+List* empty()
+{
     List* empty = (List*)malloc(sizeof(List));
     empty->isCons = 1;
     empty->cellunion.conscell.first = NULL;
     empty->cellunion.conscell.rest = NULL;
     return empty;
 }
+
+// private pointer to association list
+List* asl;
 
 /****************************************************************
  Function: s_exprh(int lvl)
@@ -68,7 +72,7 @@ List* s_exprh(int lvl)
         while (strcmp(token, ")") != 0) {
             List* newCell = (List*)malloc(sizeof(List));
             newCell->isCons = 1;
-            
+
             temp->cellunion.conscell.rest = newCell;
             temp = temp->cellunion.conscell.rest;
             temp->cellunion.conscell.first = s_exprh(lvl + 1);
@@ -80,18 +84,18 @@ List* s_exprh(int lvl)
         // create the corresponding cons-cell structure
         // as the (quote) command
         strcpy(token, getToken());
-        
+
         // make quote cell
         List* quote = (List*)malloc(sizeof(List));
         quote->isCons = 0;
-        quote->cellunion.symbol = (char*)malloc(sizeof(char*));
+        quote->cellunion.symbol = (char*)malloc(sizeof(char));
         strcpy(quote->cellunion.symbol, "quote");
-        
+
         List* next = (List*)malloc(sizeof(List));
         next->isCons = 1;
         next->cellunion.conscell.first = s_exprh(lvl + 1);
         next->cellunion.conscell.rest = NULL;
-        
+
         local->isCons = 1;
         local->cellunion.conscell.first = quote;
         local->cellunion.conscell.rest = next;
@@ -185,7 +189,8 @@ List* listcpy(List* list)
         if (newList->isCons == 1) {
             newList->cellunion.conscell.first = listcpy(list->cellunion.conscell.first);
             newList->cellunion.conscell.rest = listcpy(list->cellunion.conscell.rest);
-        } else {
+        }
+        else {
             newList->cellunion.symbol = (char*)malloc(sizeof(char));
             strcpy(newList->cellunion.symbol, list->cellunion.symbol);
         }
@@ -202,13 +207,13 @@ List* evals(List* list, int lvl);
 // implementation of car function
 List* car(List* list)
 {
-    return eval(list->cellunion.conscell.first)->cellunion.conscell.first;
+    return evals(list->cellunion.conscell.first, 0)->cellunion.conscell.first;
 }
 
 // implementation of cdr function
 List* cdr(List* list)
 {
-    return eval(list->cellunion.conscell.first)->cellunion.conscell.rest;
+    return evals(list->cellunion.conscell.first, 0)->cellunion.conscell.rest;
 }
 
 // implementation of cons function
@@ -217,12 +222,13 @@ List* cons(List* list1, List* list2)
     // pointer pointing to the start of the list
     List* head = (List*)malloc(sizeof(List));
     head->isCons = 1;
-    head->cellunion.conscell.first = eval(list1);
-    List* rest = eval(list2);
+    head->cellunion.conscell.first = evals(list1, 0);
+    List* rest = evals(list2, 0);
     // do not attach an empty list
     if (rest->isCons == 1 && rest->cellunion.conscell.first == NULL && rest->cellunion.conscell.rest == NULL) {
         head->cellunion.conscell.rest = NULL;
-    } else {
+    }
+    else {
         head->cellunion.conscell.rest = rest;
     }
     return head;
@@ -234,20 +240,27 @@ List* append(List* list1, List* list2)
     // pointer pointing to the start of the list
     List* head = (List*)malloc(sizeof(List));
     head->isCons = 1;
-    head->cellunion.conscell.first = listcpy(eval(list1));
+    head->cellunion.conscell.first = listcpy(list1);
     head->cellunion.conscell.rest = NULL;
     List* ptr = head->cellunion.conscell.first;
     while (ptr->cellunion.conscell.rest) {
         ptr = ptr->cellunion.conscell.rest;
     }
-    ptr->cellunion.conscell.rest = listcpy(eval(list2));
+    // do not attach an empty list
+    List* rest = listcpy(list2);
+    if (rest->isCons == 1 && rest->cellunion.conscell.first == NULL && rest->cellunion.conscell.rest == NULL) {
+        ptr->cellunion.conscell.rest = NULL;
+    }
+    else {
+        ptr->cellunion.conscell.rest = rest;
+    }
     return head->cellunion.conscell.first;
 }
 
 // implementation of symbol? function
 List* symbol(List* list)
 {
-    if (eval(list->cellunion.conscell.first)->isCons == 0)
+    if (evals(list->cellunion.conscell.first, 0)->isCons == 0)
         return t();
     else
         return f();
@@ -274,11 +287,12 @@ int equals(List* list1, List* list2)
 {
     if (list1->isCons == 0 && list2->isCons == 0) {
         // a symbol cell, compare the symbol
-        if(strcmp(list1->cellunion.symbol, list2->cellunion.symbol) == 0)
+        if (strcmp(list1->cellunion.symbol, list2->cellunion.symbol) == 0)
             return 1;
         else
             return 0;
-    } else if(list1->isCons == 1 && list2->isCons == 1) {
+    }
+    else if (list1->isCons == 1 && list2->isCons == 1) {
         // a cons-cell, recursively compare its first and rest
         // if both pointers are NULL, then that branch is equal
         int x;
@@ -300,7 +314,8 @@ int equals(List* list1, List* list2)
             return 1;
         else
             return 0;
-    } else if(list1 == NULL && list2 == NULL)
+    }
+    else if (list1 == NULL && list2 == NULL)
         return 1;
     else
         return 0;
@@ -315,16 +330,26 @@ List* equal(List* list1, List* list2)
         return f();
 }
 
-// implementation of the assoc function
-// returns the pair associated with the symbol
-// and #f if the symbol is not the first element of any pair
+/****************************************************************
+ * Function: assoc(List* symbol, List* list)
+ * --------------------
+ * Implementation of the assoc function. Returns the pair
+ * associated with the symbol or #f if the symbol is not
+ * the first element of any pair
+ ****************************************************************/
 List* assoc(List* symbol, List* list)
 {
     List* ptr = list;
-    while (ptr->cellunion.conscell.rest != NULL) {
+    while (ptr != NULL) {
         // going to the next pair, checking the first symbol
-        if (strcmp(symbol->cellunion.symbol, ptr->cellunion.conscell.first->cellunion.conscell.first->cellunion.symbol) == 0)
-            return ptr->cellunion.conscell.first;
+        if (ptr->cellunion.conscell.first != NULL) {
+            if (ptr->cellunion.conscell.first->cellunion.conscell.first != NULL) {
+                if (ptr->cellunion.conscell.first->cellunion.conscell.first->cellunion.symbol != NULL) {
+                    if (strcmp(symbol->cellunion.symbol, ptr->cellunion.conscell.first->cellunion.conscell.first->cellunion.symbol) == 0)
+                        return ptr->cellunion.conscell.first;
+                }
+            }
+        }
         ptr = ptr->cellunion.conscell.rest;
     }
     return f();
@@ -363,7 +388,7 @@ List* numadd(List* list1, List* list2)
     int add = atoi(list1->cellunion.symbol) + atoi(list2->cellunion.symbol);
     char a[20];
     sprintf(a, "%d", add);
-    List* result = (List*)malloc(sizeof(List*));
+    List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
     result->cellunion.symbol = a;
     return result;
@@ -375,7 +400,7 @@ List* numsub(List* list1, List* list2)
     int add = atoi(list1->cellunion.symbol) - atoi(list2->cellunion.symbol);
     char a[20];
     sprintf(a, "%d", add);
-    List* result = (List*)malloc(sizeof(List*));
+    List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
     result->cellunion.symbol = a;
     return result;
@@ -405,7 +430,12 @@ List* iff(List* list)
         return evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, 2);
 }
 
-// helper method for eval, keeping track of the level
+/****************************************************************
+ * Function: eval(List* list, List* assocList)
+ * --------------------
+ * Helper method for eval, keeping track of the level. Also modifies
+ * and utilizes the association list.
+ ****************************************************************/
 List* evals(List* list, int lvl)
 {
     char name[20];
@@ -474,6 +504,42 @@ List* evals(List* list, int lvl)
             if (strcmp(name, "if") == 0) {
                 return iff(list->cellunion.conscell.rest);
             }
+            if (strcmp(name, "define") == 0) {
+                List* name = (List*)malloc(sizeof(List));
+                name->isCons = 0;
+                name->cellunion.symbol = (char*)malloc(sizeof(char));
+                strcpy(name->cellunion.symbol, list->cellunion.conscell.rest->cellunion.conscell.first->cellunion.symbol);
+                
+                List* def = (List*)malloc(sizeof(List));
+                def->isCons = 1;
+                def->cellunion.conscell.first = evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 1);
+                def->cellunion.conscell.rest = NULL;
+                
+                List* entry = (List*)malloc(sizeof(List));
+                entry->isCons = 1;
+                entry->cellunion.conscell.first = name;
+                entry->cellunion.conscell.rest = def;
+                
+                List* cell = (List*)malloc(sizeof(List));
+                cell->isCons = 1;
+                cell->cellunion.conscell.first = entry;
+                cell->cellunion.conscell.rest = NULL;
+                
+                asl = append(cell, asl);
+                return list;
+            }
+            // evaluate definitions
+            List* nameCell = (List*)malloc(sizeof(List));
+            nameCell->isCons = 0;
+            nameCell->cellunion.symbol = (char*)malloc(sizeof(char));
+            strcpy(nameCell->cellunion.symbol, name);
+            
+            List* assocResult = assoc(nameCell, asl);
+            if (assocResult != NULL) {
+                if (assocResult->isCons == 1) {
+                    list = assocResult->cellunion.conscell.rest;
+                }
+            }
             if (strcmp(name, "exit") == 0) {
                 printf("Have a nice day!\n");
                 exit(0);
@@ -487,17 +553,35 @@ List* evals(List* list, int lvl)
             if (strcmp(name, "#f") == 0 && !(lvl == 0 || lvl == 1)) {
                 list = empty();
             }
+            // evaluate definitions
+            List* nameCell = (List*)malloc(sizeof(List));
+            nameCell->isCons = 0;
+            nameCell->cellunion.symbol = (char*)malloc(sizeof(char));
+            strcpy(nameCell->cellunion.symbol, name);
+            
+            List* assocResult = assoc(nameCell, asl);
+            if (assocResult != NULL) {
+                if (assocResult->isCons == 1) {
+                    list = assocResult->cellunion.conscell.rest->cellunion.conscell.first;
+                }
+            }
         }
     }
     return list;
 }
 
 /****************************************************************
- Function: eval(List* list)
+ Function: eval(List* list, List* assocList)
  --------------------
  Evaluate a list from pointer to the start of the list, according
  to the definitions of the functions. Treat "#f" as empty list "()".
+ Use the corresponding association list for defintions.
  ****************************************************************/
-List* eval(List* list) {
-    return evals(list, 0);
+List* eval(List* list, List* assocList)
+{
+    asl = assocList;
+    List* result = evals(list, 0);
+    // return the association list back to main()
+    *assocList = *asl;
+    return result;
 }

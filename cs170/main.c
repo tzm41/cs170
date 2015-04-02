@@ -11,11 +11,12 @@
 int main(int argc, const char* argv[])
 {
     startTokens(20);
-    printf("A prototype evaluator for Scheme.\nType Scheme expressions using quote,\ncar, cdr, cons and symbol?.\nThe function call (exit) quits.\n");
+    List* assocList = empty();
+    printf("A prototype evaluator for Scheme.\nType Scheme expressions using quote,\ncar, cdr, cons and other functions.\nThe function call (exit) quits.\n");
     printf("\nscheme> ");
     
     while (1) {
-        printList(eval(s_expr()));
+        printList(eval(s_expr(), assocList));
         fflush(stdin);
         printf("\n\nscheme> ");
     }

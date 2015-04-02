@@ -15,12 +15,14 @@ struct Cell;
 
 typedef struct Cell List;
 
+List* empty();
+
 void startTokens(int maxLength);
 
 List* s_expr();
 
 void printList(List* first);
 
-List* eval(List* list);
+List* eval(List* list, List* assocList);
 
 #endif
