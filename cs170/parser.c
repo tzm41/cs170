@@ -386,11 +386,11 @@ List* numeq(List* list1, List* list2)
 List* numadd(List* list1, List* list2)
 {
     int add = atoi(list1->cellunion.symbol) + atoi(list2->cellunion.symbol);
-    char a[20];
-    sprintf(a, "%d", add);
+    // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
-    result->cellunion.symbol = a;
+    result->cellunion.symbol = (char*)malloc(sizeof(char));
+    sprintf(result->cellunion.symbol, "%d", add);
     return result;
 }
 
@@ -398,11 +398,35 @@ List* numadd(List* list1, List* list2)
 List* numsub(List* list1, List* list2)
 {
     int add = atoi(list1->cellunion.symbol) - atoi(list2->cellunion.symbol);
-    char a[20];
-    sprintf(a, "%d", add);
+    // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
-    result->cellunion.symbol = a;
+    result->cellunion.symbol = (char*)malloc(sizeof(char));
+    sprintf(result->cellunion.symbol, "%d", add);
+    return result;
+}
+
+// implementation of the numeric * function
+List* nummul(List* list1, List* list2)
+{
+    int add = atoi(list1->cellunion.symbol) * atoi(list2->cellunion.symbol);
+    // construct result cell
+    List* result = (List*)malloc(sizeof(List));
+    result->isCons = 0;
+    result->cellunion.symbol = (char*)malloc(sizeof(char));
+    sprintf(result->cellunion.symbol, "%d", add);
+    return result;
+}
+
+// implementation of the numeric / function
+List* numdiv(List* list1, List* list2)
+{
+    int add = atoi(list1->cellunion.symbol) / atoi(list2->cellunion.symbol);
+    // construct result cell
+    List* result = (List*)malloc(sizeof(List));
+    result->isCons = 0;
+    result->cellunion.symbol = (char*)malloc(sizeof(char));
+    sprintf(result->cellunion.symbol, "%d", add);
     return result;
 }
 
@@ -497,6 +521,12 @@ List* evals(List* list, int lvl)
             }
             if (strcmp(name, "-") == 0) {
                 return numsub(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "*") == 0) {
+                return nummul(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+            }
+            if (strcmp(name, "/") == 0) {
+                return numdiv(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
             }
             if (strcmp(name, "cond") == 0) {
                 return evals(cond(list), lvl + 1);
