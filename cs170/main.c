@@ -7,16 +7,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
+#include "evaler.h"
 
 int main(int argc, const char* argv[])
 {
     startTokens(20);
     List* assocList = empty();
+    List* funcList = empty();
     printf("A prototype evaluator for Scheme.\nType Scheme expressions using quote,\ncar, cdr, cons and other functions.\nThe function call (exit) quits.\n");
     printf("\nscheme> ");
     
     while (1) {
-        printList(eval(s_expr(), assocList));
+        printList(eval(s_expr(), assocList, funcList));
         fflush(stdin);
         printf("\n\nscheme> ");
     }

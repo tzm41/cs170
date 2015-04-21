@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B2ABAE61AE591BC00E27D82 /* evaler.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B2ABAE41AE591BC00E27D82 /* evaler.c */; };
 		3BB175A91A9F8096006189EB /* parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BB175A81A9F8096006189EB /* parser.c */; };
 		3BECC5FA1A9BD384004087DD /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BECC5F91A9BD384004087DD /* main.c */; };
 		3BECC6041A9BD39F004087DD /* lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BECC6001A9BD39F004087DD /* lexer.c */; };
@@ -42,6 +43,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3B2ABAE41AE591BC00E27D82 /* evaler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = evaler.c; sourceTree = "<group>"; };
+		3B2ABAE51AE591BC00E27D82 /* evaler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = evaler.h; sourceTree = "<group>"; };
 		3BB175751A9E7996006189EB /* parser.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = parser.xcodeproj; path = parser/parser.xcodeproj; sourceTree = "<group>"; };
 		3BB1759C1A9EA42D006189EB /* test.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = test.xcodeproj; path = test/test.xcodeproj; sourceTree = "<group>"; };
 		3BB175A71A9F73D3006189EB /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
@@ -107,6 +110,8 @@
 				3BECC5F91A9BD384004087DD /* main.c */,
 				3BB175A71A9F73D3006189EB /* parser.h */,
 				3BB175A81A9F8096006189EB /* parser.c */,
+				3B2ABAE41AE591BC00E27D82 /* evaler.c */,
+				3B2ABAE51AE591BC00E27D82 /* evaler.h */,
 			);
 			name = Starter;
 			path = cs170;
@@ -216,6 +221,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B2ABAE61AE591BC00E27D82 /* evaler.c in Sources */,
 				3BECC6041A9BD39F004087DD /* lexer.c in Sources */,
 				3BB175A91A9F8096006189EB /* parser.c in Sources */,
 				3BECC5FA1A9BD384004087DD /* main.c in Sources */,

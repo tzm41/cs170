@@ -16,13 +16,13 @@ struct Cell;
 typedef struct Cell List;
 
 List* empty();
+List* t();
+List* f();
 
 void startTokens(int maxLength);
 
 List* s_expr();
 
 void printList(List* first);
-
-List* eval(List* list, List* assocList);
 
 #endif
