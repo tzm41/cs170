@@ -14,6 +14,6 @@ struct Cell;
 
 typedef struct Cell List;
 
-List* eval(List* list, List* assocList, List* funcList);
+List* eval(List* list, List* assocList, List* funcList, int lvl);
 
 #endif /* defined(__cs170__evaler__) */

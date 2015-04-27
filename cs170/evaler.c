@@ -25,6 +25,12 @@ struct Cell {
     } cellunion;
 };
 
+// implementation of all the evaluation methods
+List* evals(List* list, int lvl);
+
+// implementation of function evaluation
+List* evalFunc(List* augEnv, List* funcCell, int lvl);
+
 // private pointer to association list
 List* asl;
 // private pointer to function list
@@ -48,11 +54,6 @@ List* listcpy(List* list)
     }
     return NULL;
 }
-
-/*
- * Implementation of all the evaluation methods
- */
-List* evals(List* list, int lvl);
 
 // implementation of car function
 List* car(List* list)
@@ -367,13 +368,54 @@ List* evals(List* list, int lvl)
             List* assocResult = assoc(nameCell, asl);
             if (equals(funcResult, f()) != 1) {
                 // evaluate function
-                printf("func detected");
-                List* funcDef = funcResult->cellunion.conscell.rest->cellunion.conscell.first;
-                printList(funcDef);
+                List* funcParam = funcResult->cellunion.conscell.rest->cellunion.conscell.first->cellunion.conscell.rest->cellunion.conscell.first->cellunion.conscell.rest;
+                List* funcDef = funcResult->cellunion.conscell.rest->cellunion.conscell.first->cellunion.conscell.rest->cellunion.conscell.rest;
+                
+                // make function cell
+                List* funcCell = (List*)malloc(sizeof(List));
+                funcCell->isCons = 1;
+                funcCell->cellunion.conscell.first = nameCell;
+                funcCell->cellunion.conscell.rest = funcDef;
+                
+                // make augmented environment cell
+                List* augmentEnv = (List*)malloc(sizeof(List));
+                augmentEnv->isCons = 1;
+                augmentEnv->cellunion.conscell.first = empty();
+                augmentEnv->cellunion.conscell.rest = NULL;
+                
+                
+                // construct parameter-variable pairs
+                List* paramPtr = funcParam;
+                List* argPtr = list->cellunion.conscell.rest;
+                while (paramPtr != NULL) {
+                    List* thisParamSymbol = paramPtr->cellunion.conscell.first;
+                    List* thisArgument = argPtr->cellunion.conscell.first;
+                    
+                    List* thisArgumentCell = (List*)malloc(sizeof(List));
+                    thisArgumentCell->isCons = 1;
+                    thisArgumentCell->cellunion.conscell.first = evals(thisArgument, lvl);
+                    thisArgumentCell->cellunion.conscell.rest = NULL;
+                    
+                    List* thisPair = (List*)malloc(sizeof(List));
+                    thisPair->isCons = 1;
+                    thisPair->cellunion.conscell.first = thisParamSymbol;
+                    thisPair->cellunion.conscell.rest = thisArgumentCell;
+                    
+                    List* pairCell = (List*)malloc(sizeof(List));
+                    pairCell->isCons = 1;
+                    pairCell->cellunion.conscell.first = thisPair;
+                    pairCell->cellunion.conscell.rest = NULL;
+                    
+                    augmentEnv = append(pairCell, augmentEnv);
+                    
+                    paramPtr = paramPtr->cellunion.conscell.rest;
+                    argPtr = argPtr->cellunion.conscell.rest;
+                }
+                list = evalFunc(augmentEnv, funcCell, lvl);
             } else if (equals(assocResult, f()) != 1) {
                 // evaluate symbol defintion
                 if (assocResult->isCons == 1) {
-                    list = assocResult->cellunion.conscell.rest;
+                    return assocResult->cellunion.conscell.rest;
                 }
             } else {
                 // switch for each function
@@ -381,22 +423,22 @@ List* evals(List* list, int lvl)
                     return quote(list);
                 }
                 if (strcmp(name, "car") == 0) {
-                    return evals(car(list->cellunion.conscell.rest), lvl + 1);
+                    return car(list->cellunion.conscell.rest);
                 }
                 if (strcmp(name, "cdr") == 0) {
-                    return evals(cdr(list->cellunion.conscell.rest), lvl + 1);
+                    return cdr(list->cellunion.conscell.rest);
                 }
                 if (strcmp(name, "symbol?") == 0) {
-                    return evals(symbolQ(list->cellunion.conscell.rest), lvl + 1);
+                    return evals(symbolQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
                 }
                 if (strcmp(name, "function?") == 0) {
                     return evals(funcQ(list->cellunion.conscell.rest), lvl + 1);
                 }
                 if (strcmp(name, "list?") == 0) {
-                    return evals(listQ(list->cellunion.conscell.rest), lvl + 1);
+                    return evals(listQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
                 }
                 if (strcmp(name, "null?") == 0) {
-                    return evals(nullQ(list->cellunion.conscell.rest), lvl + 1);
+                    return evals(nullQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
                 }
                 if (strcmp(name, "equal?") == 0) {
                     return evals(equalQ(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2)), lvl + 1);
@@ -438,7 +480,7 @@ List* evals(List* list, int lvl)
                     return iff(list->cellunion.conscell.rest);
                 }
                 if (strcmp(name, "define") == 0) {
-                    if (equals(symbolQ(list->cellunion.conscell.rest), t()) == 1) {
+                    if (equals(symbolQ(list->cellunion.conscell.rest), t()) == 1 || equals(nullQ(list->cellunion.conscell.rest), t()) == 1) {
                         // defining symbol
                         // name cell of the symbol
                         List* name = (List*)malloc(sizeof(List));
@@ -465,7 +507,6 @@ List* evals(List* list, int lvl)
                         cap->cellunion.conscell.rest = NULL;
                         
                         asl = append(cap, asl);
-
                     } else if (equals(listQ(list->cellunion.conscell.rest), t()) == 1) {
                         // defining function
                         // name cell of the function
@@ -494,7 +535,6 @@ List* evals(List* list, int lvl)
                         
                         fcl = append(cap, fcl);
                     }
-                    return list;
                 }
                 // quit
                 if (strcmp(name, "exit") == 0) {
@@ -509,10 +549,9 @@ List* evals(List* list, int lvl)
             // treat "#f" as an empty list, if the level is not 0 or 1
             // which is only for aesthetic purpose
             if (strcmp(name, "#f") == 0 && !(lvl == 0 || lvl == 1)) {
-                list = empty();
+                return empty();
             }
-            // evaluate definitions
-            // TODO: add function
+            // evaluate symbol definitions
             List* nameCell = (List*)malloc(sizeof(List));
             nameCell->isCons = 0;
             nameCell->cellunion.symbol = (char*)malloc(sizeof(char));
@@ -521,12 +560,22 @@ List* evals(List* list, int lvl)
             List* assocResult = assoc(nameCell, asl);
             if (assocResult != NULL) {
                 if (assocResult->isCons == 1) {
-                    list = assocResult->cellunion.conscell.rest->cellunion.conscell.first;
+                    return assocResult->cellunion.conscell.rest->cellunion.conscell.first;
                 }
             }
         }
     }
     return list;
+}
+
+// recursive function evalution method
+List* evalFunc(List* augEnv, List* funcCell, int lvl) {
+    List* localFunc = funcCell->cellunion.conscell.rest->cellunion.conscell.first;
+    List* result = eval(localFunc, augEnv, fcl, lvl + 1);
+    if (lvl == 0) {
+        return result->cellunion.conscell.first;
+    } else
+        return result;
 }
 
 /****************************************************************
@@ -536,11 +585,11 @@ List* evals(List* list, int lvl)
  to the definitions of the functions. Treat "#f" as empty list "()".
  Use the corresponding association list for defintions.
  ****************************************************************/
-List* eval(List* list, List* assocList, List* funcList)
+List* eval(List* list, List* assocList, List* funcList, int lvl)
 {
     asl = assocList;
     fcl = funcList;
-    List* result = evals(list, 0);
+    List* result = evals(list, lvl);
     // return the lists back to main()
     *assocList = *asl;
     *funcList = *fcl;
