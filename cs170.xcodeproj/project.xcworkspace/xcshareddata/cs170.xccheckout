@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>E8860871-7822-4B50-B986-75AB2B15EFF4</string>
 	<key>IDESourceControlProjectName</key>
-	<string>cs170</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>6E8EDD037008BED516606CB9054EDE20F4C4752B</key>
 		<string>https://github.com/tzm41/cs170.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>cs170.xcodeproj</string>
+	<string>cs170.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>6E8EDD037008BED516606CB9054EDE20F4C4752B</key>

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "evaler.h"
 #include "parser.h"
 
@@ -30,6 +31,9 @@ List* evals(List* list, int lvl);
 
 // implementation of function evaluation
 List* evalFunc(List* augEnv, List* funcCell, int lvl);
+
+// implementation of equal function
+int equals(List* list1, List* list2);
 
 // private pointer to association list
 List* asl;
@@ -64,6 +68,9 @@ List* car(List* list)
 // implementation of cdr function
 List* cdr(List* list)
 {
+    if (equals(list, empty()) == 1) {
+        return empty();
+    }
     List* rest = evals(list->cellunion.conscell.first, 0)->cellunion.conscell.rest;
     if (rest == NULL)
         return empty();
@@ -109,7 +116,11 @@ List* append(List* list1, List* list2)
     else {
         ptr->cellunion.conscell.rest = rest;
     }
-    return head->cellunion.conscell.first;
+    // kick out empty list at the head
+    if (head->cellunion.conscell.first->cellunion.conscell.first == NULL)
+        return head->cellunion.conscell.first->cellunion.conscell.rest;
+    else
+        return head->cellunion.conscell.first;
 }
 
 // implementation of symbol? function
@@ -133,6 +144,12 @@ List* listQ(List* list)
 // implementation of null? function
 List* nullQ(List* list)
 {
+    if (list->cellunion.conscell.first == NULL) {
+        return t();
+    }
+    if (list->isCons == 0) {
+        return f();
+    }
     List* head = evals(list->cellunion.conscell.first, 2);
     if (head->isCons == 1 && head->cellunion.conscell.first == NULL && head->cellunion.conscell.rest == NULL)
         return t();
@@ -249,7 +266,13 @@ List* numeq(List* list1, List* list2)
 // implementation of the numeric + function
 List* numadd(List* list1, List* list2)
 {
-    int add = atoi(list1->cellunion.symbol) + atoi(list2->cellunion.symbol);
+    List* rest = list2;
+    int add = atoi(list1->cellunion.symbol) + atoi(rest->cellunion.conscell.first->cellunion.symbol);
+    // add the whole list
+    while (rest->cellunion.conscell.rest != NULL) {
+        rest = rest->cellunion.conscell.rest;
+        add = add + atoi(rest->cellunion.conscell.first->cellunion.symbol);
+    }
     // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
@@ -261,36 +284,42 @@ List* numadd(List* list1, List* list2)
 // implementation of the numeric - function
 List* numsub(List* list1, List* list2)
 {
-    int add = atoi(list1->cellunion.symbol) - atoi(list2->cellunion.symbol);
+    int sub = atoi(list1->cellunion.symbol) - atoi(list2->cellunion.symbol);
     // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
     result->cellunion.symbol = (char*)malloc(sizeof(char));
-    sprintf(result->cellunion.symbol, "%d", add);
+    sprintf(result->cellunion.symbol, "%d", sub);
     return result;
 }
 
 // implementation of the numeric * function
 List* nummul(List* list1, List* list2)
 {
-    int add = atoi(list1->cellunion.symbol) * atoi(list2->cellunion.symbol);
+    List* rest = list2;
+    int mul = atoi(list1->cellunion.symbol) * atoi(list2->cellunion.conscell.first->cellunion.symbol);
+    // multiply the whole list
+    while (rest->cellunion.conscell.rest != NULL) {
+        rest = rest->cellunion.conscell.rest;
+        mul = mul * atoi(rest->cellunion.conscell.first->cellunion.symbol);
+    }
     // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
     result->cellunion.symbol = (char*)malloc(sizeof(char));
-    sprintf(result->cellunion.symbol, "%d", add);
+    sprintf(result->cellunion.symbol, "%d", mul);
     return result;
 }
 
 // implementation of the numeric / function
 List* numdiv(List* list1, List* list2)
 {
-    int add = atoi(list1->cellunion.symbol) / atoi(list2->cellunion.symbol);
+    int div = atoi(list1->cellunion.symbol) / atoi(list2->cellunion.symbol);
     // construct result cell
     List* result = (List*)malloc(sizeof(List));
     result->isCons = 0;
     result->cellunion.symbol = (char*)malloc(sizeof(char));
-    sprintf(result->cellunion.symbol, "%d", add);
+    sprintf(result->cellunion.symbol, "%d", div);
     return result;
 }
 
@@ -318,6 +347,31 @@ List* iff(List* list)
         return evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, 2);
 }
 
+// implementation of the logical and function
+List* and(List* list)
+{
+    List* ptr = list;
+    while (ptr->cellunion.conscell.rest != NULL) {
+        if (equals(evals(ptr->cellunion.conscell.first, 0), f()) == 1) {
+            return f();
+        }
+        ptr = ptr->cellunion.conscell.rest;
+    }
+    return ptr->cellunion.conscell.first;
+}
+
+// implementation of the logical or function
+List* or(List* list)
+{
+    List* ptr = list;
+    while (ptr != NULL) {
+        if (equals(evals(ptr->cellunion.conscell.first, 0), f()) == 0) {
+            return evals(ptr->cellunion.conscell.first, 0);
+        }
+        ptr = ptr->cellunion.conscell.rest;
+    }
+    return f();
+}
 
 // implementation of function? function
 List* funcQ(List* list)
@@ -331,6 +385,73 @@ List* funcQ(List* list)
             return f();
     } else
         return f();
+}
+
+// implementation of list function
+List* listFunc(List* list) {
+    List* result = (List*)malloc(sizeof(List));
+    result->isCons = 1;
+    result->cellunion.conscell.first = NULL;
+    result->cellunion.conscell.rest = NULL;
+    
+    List* ptr = list;
+    while (ptr != NULL) {
+        List* evalResult = evals(ptr->cellunion.conscell.first, 0);
+        
+        List* evalCell = (List*)malloc(sizeof(List));
+        evalCell->isCons = 1;
+        evalCell->cellunion.conscell.first = evalResult;
+        evalCell->cellunion.conscell.rest = NULL;
+        
+        result = append(result, evalCell);
+        ptr = ptr->cellunion.conscell.rest;
+    }
+    
+    return result;
+}
+
+// implementation of number? function
+List* numberQ(List* list)
+{
+    List* evalResult = evals(list, 0);
+    if (evalResult->cellunion.conscell.first->isCons == 1) {
+        return f();
+    }
+    char content[20] = "";
+    strcpy(content, evalResult->cellunion.conscell.first->cellunion.symbol);
+    for (int i = 0; i < strlen(content); i++) {
+        if (!isdigit(content[i])) {
+            return f();
+        }
+    }
+    return t();
+}
+
+// implementation of the last function
+List* last(List* list) {
+    List* ptr = evals(list, 0);
+    while (ptr->cellunion.conscell.rest != NULL) {
+        ptr = ptr->cellunion.conscell.rest;
+    }
+    return ptr->cellunion.conscell.first;
+}
+
+// implementation of the length function
+List* length(List* list) {
+    List* ptr = evals(list->cellunion.conscell.first, 1);
+    int length = 0;
+    if (equals(ptr->cellunion.conscell.first, empty()) == 0) {
+        length += 1;
+    }
+    while (ptr->cellunion.conscell.rest != NULL) {
+        ptr = ptr->cellunion.conscell.rest;
+        length += 1;
+    }
+    List* cell = (List*)malloc(sizeof(List));
+    cell->isCons = 0;
+    cell->cellunion.symbol = (char*)malloc(sizeof(char));
+    sprintf(cell->cellunion.symbol, "%d", length);
+    return cell;
 }
 
 /****************************************************************
@@ -387,6 +508,7 @@ List* evals(List* list, int lvl)
                 // construct parameter-variable pairs
                 List* paramPtr = funcParam;
                 List* argPtr = list->cellunion.conscell.rest;
+                int paramCount = 0;
                 while (paramPtr != NULL) {
                     List* thisParamSymbol = paramPtr->cellunion.conscell.first;
                     List* thisArgument = argPtr->cellunion.conscell.first;
@@ -410,8 +532,13 @@ List* evals(List* list, int lvl)
                     
                     paramPtr = paramPtr->cellunion.conscell.rest;
                     argPtr = argPtr->cellunion.conscell.rest;
+                    paramCount += 1;
                 }
                 list = evalFunc(augmentEnv, funcCell, lvl);
+                // restore definition environment
+                for (int i = paramCount; i >= 0; i--) {
+                    asl = cdr(asl);
+                }
             } else if (equals(assocResult, f()) != 1) {
                 // evaluate symbol defintion
                 if (assocResult->isCons == 1) {
@@ -428,16 +555,34 @@ List* evals(List* list, int lvl)
                 if (strcmp(name, "cdr") == 0) {
                     return cdr(list->cellunion.conscell.rest);
                 }
+                if (strcmp(name, "cadr") == 0) {
+                    return cdr(list->cellunion.conscell.rest)->cellunion.conscell.first;
+                }
+                if (strcmp(name, "caddr") == 0) {
+                    return cdr(list->cellunion.conscell.rest)->cellunion.conscell.rest->cellunion.conscell.first;
+                }
+                if (strcmp(name, "cadddr") == 0) {
+                    return cdr(list->cellunion.conscell.rest)->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first;
+                }
+                if (strcmp(name, "caddddr") == 0) {
+                    return cdr(list->cellunion.conscell.rest)->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first;
+                }
+                if (strcmp(name, "list") == 0) {
+                    return listFunc(list->cellunion.conscell.rest);
+                }
                 if (strcmp(name, "symbol?") == 0) {
                     return evals(symbolQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
                 }
                 if (strcmp(name, "function?") == 0) {
                     return evals(funcQ(list->cellunion.conscell.rest), lvl + 1);
                 }
-                if (strcmp(name, "list?") == 0) {
-                    return evals(listQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
+                if (strcmp(name, "number?") == 0) {
+                    return evals(numberQ(list->cellunion.conscell.rest), lvl + 1);
                 }
-                if (strcmp(name, "null?") == 0) {
+                if (strcmp(name, "list?") == 0) {
+                    return evals(listQ(list->cellunion.conscell.rest), lvl + 1);
+                }
+                if (strcmp(name, "null?") == 0 || strcmp(name, "not") == 0) {
                     return evals(nullQ(evals(list->cellunion.conscell.rest, lvl)), lvl + 1);
                 }
                 if (strcmp(name, "equal?") == 0) {
@@ -462,13 +607,13 @@ List* evals(List* list, int lvl)
                     return numeq(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
                 }
                 if (strcmp(name, "+") == 0) {
-                    return numadd(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+                    return numadd(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest, lvl + 2));
                 }
                 if (strcmp(name, "-") == 0) {
                     return numsub(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
                 }
                 if (strcmp(name, "*") == 0) {
-                    return nummul(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
+                    return nummul(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest, lvl + 2));
                 }
                 if (strcmp(name, "/") == 0) {
                     return numdiv(evals(list->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2), evals(list->cellunion.conscell.rest->cellunion.conscell.rest->cellunion.conscell.first, lvl + 2));
@@ -478,6 +623,18 @@ List* evals(List* list, int lvl)
                 }
                 if (strcmp(name, "if") == 0) {
                     return iff(list->cellunion.conscell.rest);
+                }
+                if (strcmp(name, "and") == 0) {
+                    return evals(and(list->cellunion.conscell.rest), lvl + 1);
+                }
+                if (strcmp(name, "or") == 0) {
+                    return or(list->cellunion.conscell.rest);
+                }
+                if (strcmp(name, "last") == 0) {
+                    return last(list->cellunion.conscell.rest);
+                }
+                if (strcmp(name, "length") == 0) {
+                    return length(list->cellunion.conscell.rest);
                 }
                 if (strcmp(name, "define") == 0) {
                     if (equals(symbolQ(list->cellunion.conscell.rest), t()) == 1 || equals(nullQ(list->cellunion.conscell.rest), t()) == 1) {
@@ -571,11 +728,7 @@ List* evals(List* list, int lvl)
 // recursive function evalution method
 List* evalFunc(List* augEnv, List* funcCell, int lvl) {
     List* localFunc = funcCell->cellunion.conscell.rest->cellunion.conscell.first;
-    List* result = eval(localFunc, augEnv, fcl, lvl + 1);
-    if (lvl == 0) {
-        return result->cellunion.conscell.first;
-    } else
-        return result;
+    return eval(localFunc, augEnv, fcl, lvl + 1);
 }
 
 /****************************************************************
